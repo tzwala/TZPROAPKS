@@ -1074,25 +1074,28 @@
             }
         }
         
-        // --- NEW: Function to share the main website ---
+        // --- CORRECTED: Function to share the main website cleanly ---
         function shareWebsite() {
-            const shareUrl = window.location.origin; // Gets the base URL, e.g., "https://yoursite.com"
+            const shareUrl = window.location.origin; // Gets base URL, e.g., "https://yoursite.com"
             const shareTitle = 'TZPROAPKS';
-            const shareText = `Check out ${shareTitle}, a great place to find and share apps: ${shareUrl}`;
+            // The descriptive text WITHOUT the URL in it.
+            const shareText = `Check out ${shareTitle}, a great place to find and share apps.`;
+            // The text for the clipboard fallback, which SHOULD include the URL.
+            const clipboardText = `${shareText} ${shareUrl}`;
 
             if (navigator.share) {
                 navigator.share({
                     title: shareTitle,
-                    text: shareText,
-                    url: shareUrl,
+                    text: shareText, // <-- This is just the clean text.
+                    url: shareUrl,   // <-- The URL is passed here, separately.
                 }).then(() => {
                     showMessage('success', 'Website shared successfully!', 3000);
                 }).catch((error) => {
                     console.error('Web Share failed:', error);
-                    copyToClipboard(shareText, shareUrl);
+                    copyToClipboard(clipboardText, shareUrl); 
                 });
             } else {
-                copyToClipboard(shareText, shareUrl);
+                copyToClipboard(clipboardText, shareUrl);
             }
         }
 
@@ -1580,7 +1583,7 @@
         window.showAppDetails = showAppDetails;
         window.incrementDownload = incrementDownload;
         window.handleDelete = handleDelete;
-        window.shareWebsite = shareWebsite; // <-- EXPOSED NEW FUNCTION
+        window.shareWebsite = shareWebsite;
         window.showUpdateForm = showUpdateForm;
         window.handleUpdate = handleUpdate;
     </script>
