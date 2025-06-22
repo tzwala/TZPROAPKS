@@ -136,7 +136,6 @@
             flex: 1;
             overflow-y: auto; /* Enable vertical scrolling */
             padding: 6px;
-            /* Removed max-height: 100vh and overflow: hidden */
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -227,25 +226,55 @@
             margin-bottom: 0;
             overflow: hidden;
         }
-
-        #loadingIndicator {
+        
+        /* --- NEW SKELETON LOADER STYLES --- */
+        .skeleton-card {
+            background-color: #fff;
+            padding: 12px;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
-            color: #4b5563;
-            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        #loadingIndicator svg {
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
+        .skeleton {
+            background-color: #e2e8f0;
+            border-radius: 0.25rem;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .skeleton-icon {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 12px;
         }
+        
+        @screen sm {
+            .skeleton-icon {
+                width: 64px;
+                height: 64px;
+            }
+        }
+
+        .skeleton-text {
+            height: 12px;
+            margin-top: 4px;
+        }
+
+        /* Shimmer Animation */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        /* --- END SKELETON LOADER STYLES --- */
 
         .grid-cols-auto-fit-minmax {
             grid-template-columns: repeat(auto-fit, minmax(var(--auto-fit-minmax-width), 1fr));
@@ -325,6 +354,7 @@
             background-size: contain;
         }
     </style>
+    <script type='text/javascript' src='//pl26555963.profitableratecpm.com/e7/41/8e/e7418e6a42bc6ac5348e9b8f8571bab7.js'></script>
 </head>
 <body>
     <div id="app" class="bg-white app-container"></div>
@@ -363,21 +393,32 @@
                 messageArea.textContent = '';
             }, duration);
         }
+        
+        // --- NEW: Skeleton Loader Function ---
+        function renderSkeletonLoader(container, count) {
+            if (!container) return;
+            let skeletonHTML = '';
+            for (let i = 0; i < count; i++) {
+                skeletonHTML += `
+                    <div class="skeleton-card">
+                        <div class="skeleton skeleton-icon shimmer"></div>
+                        <div class="skeleton skeleton-text shimmer w-5/6"></div>
+                        <div class="skeleton skeleton-text shimmer w-3/4 mt-2"></div>
+                    </div>
+                `;
+            }
+            container.innerHTML = skeletonHTML;
+            const noResults = document.getElementById('noResults');
+            if(noResults) noResults.classList.add('hidden');
+        }
 
         function showLoading(show) {
+             // This function is now mainly for non-skeleton loading states
             const loadingIndicator = document.getElementById('loadingIndicator');
             if (loadingIndicator) {
-                loadingIndicator.classList.toggle('hidden', !show);
+                loadingIndicator.style.display = show ? 'flex' : 'none';
             }
-            const appList = document.getElementById('appList');
-            if (appList) {
-                appList.classList.toggle('hidden', show);
-            }
-            const noResults = document.getElementById('noResults');
-            if (noResults) {
-                noResults.classList.add('hidden');
-            }
-            const manageAppList = document.getElementById('manageAppList');
+             const manageAppList = document.getElementById('manageAppList');
             if (manageAppList) {
                 manageAppList.classList.toggle('hidden', show);
             }
@@ -538,13 +579,6 @@
                                     <option value="downloads-desc">Most Downloads</option>
                                     <option value="rating-desc">Highest Rating</option>
                                 </select>
-                            </div>
-                            <div id="loadingIndicator" class="hidden">
-                                <svg class="w-6 h-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
-                                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path>
-                                </svg>
-                                <span>Loading Apps...</span>
                             </div>
                             <div id="appList" class="grid grid-cols-auto-fit-minmax gap-4 transition-all duration-300" style="--auto-fit-minmax-width: 120px;"></div>
                             <div id="noResults" class="text-center text-gray-600 mt-6 sm:mt-8 hidden text-sm sm:text-base">No apps found matching your criteria.</div>
@@ -790,7 +824,7 @@
                     </div>
                     <div class="p-6 flex-1 app-content">
                         <div id="messageArea" class="hidden"></div>
-                        <div id="loadingIndicator" class="hidden">
+                        <div id="loadingIndicator" style="display:none;"> <!-- Use style for this one -->
                             <svg class="w-6 h-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
                                 <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path>
@@ -1074,7 +1108,6 @@
             }
         }
         
-        // --- CORRECTED: Function to share the main website cleanly ---
         function shareWebsite() {
             const shareUrl = window.location.origin; // Gets base URL, e.g., "https://yoursite.com"
             const shareTitle = 'TZPROAPKS';
@@ -1112,16 +1145,12 @@
         function renderApps(appsWithIds) {
             const appList = document.getElementById('appList');
             const noResults = document.getElementById('noResults');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-
-            if (!appList || !noResults || !loadingIndicator) {
-                console.error('App list, no results, or loading indicator element not found during render');
-                showLoading(false);
+            
+            if (!appList || !noResults) {
                 return;
             }
 
             appList.innerHTML = '';
-            showLoading(false);
 
             if (appsWithIds.length === 0) {
                 noResults.classList.remove('hidden');
@@ -1148,17 +1177,10 @@
 
         function loadApps() {
             const appList = document.getElementById('appList');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const noResults = document.getElementById('noResults');
+            if (!appList) return;
 
-            if (!appList || !loadingIndicator || !noResults) {
-                console.error('Required elements not found for loadApps');
-                return;
-            }
-
-            appList.innerHTML = '';
-            noResults.classList.add('hidden');
-            showLoading(true);
+            // Show skeletons immediately
+            renderSkeletonLoader(appList, 12);
 
             if (window.currentAppListener) {
                 window.currentAppListener();
@@ -1181,14 +1203,17 @@
                 const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
                 const category = categoryFilter ? categoryFilter.value : '';
                 const sort = sortOption ? sortOption.value : 'name-asc';
-
+                
+                // Replace skeletons with real data
                 filterAndRenderApps(appsWithIds, query, category, sort);
             }, (error) => {
                 console.error('Error fetching apps:', error);
-                showLoading(false);
-                noResults.classList.remove('hidden');
-                noResults.textContent = 'Error loading apps. Please try again.';
-                appList.classList.add('hidden');
+                const noResults = document.getElementById('noResults');
+                if(noResults) {
+                   noResults.classList.remove('hidden');
+                   noResults.textContent = 'Error loading apps. Please try again.';
+                }
+                if(appList) appList.innerHTML = ''; // Clear skeletons on error
                 window.currentAppListenerData = null;
             });
 
@@ -1196,16 +1221,6 @@
         }
 
         function filterAndRenderApps(appsWithIds, query, category, sort) {
-            const appList = document.getElementById('appList');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const noResults = document.getElementById('noResults');
-
-            if (!appList || !loadingIndicator || !noResults) {
-                console.error('Rendering elements not found in filterAndRenderApps');
-                showLoading(false);
-                return;
-            }
-
             let filteredApps = appsWithIds.filter(item => {
                 const app = item.data;
                 const matchesSearch = app.name.toLowerCase().includes(query);
@@ -1226,7 +1241,7 @@
                 }
                 return 0;
             });
-
+            
             renderApps(filteredApps);
         }
 
@@ -1235,37 +1250,38 @@
             const categoryFilter = document.getElementById('categoryFilter');
             const sortOption = document.getElementById('sortOption');
 
-            if (!searchInput || !categoryFilter || !sortOption) {
-                console.warn('Search, filter, or sort elements not found. Skipping setup.');
-                return;
-            }
+            if (!searchInput || !categoryFilter || !sortOption) return;
+            
+            const appList = document.getElementById('appList');
 
             const triggerFilterSort = () => {
-                if (window.currentAppListenerData) {
-                    const query = searchInput.value.trim().toLowerCase();
-                    const category = categoryFilter.value;
-                    const sort = sortOption.value;
-                    filterAndRenderApps(window.currentAppListenerData, query, category, sort);
-                } else {
-                    console.warn('Data not yet loaded by listener when filter/sort triggered.');
-                    loadApps();
-                }
+                // Show skeletons while filtering
+                if(appList) renderSkeletonLoader(appList, 12);
+                
+                // Use a short timeout to allow the UI to update with skeletons before the JS-heavy filtering starts
+                setTimeout(() => {
+                    if (window.currentAppListenerData) {
+                        const query = searchInput.value.trim().toLowerCase();
+                        const category = categoryFilter.value;
+                        const sort = sortOption.value;
+                        filterAndRenderApps(window.currentAppListenerData, query, category, sort);
+                    } else {
+                        console.warn('Data not yet loaded by listener when filter/sort triggered.');
+                        loadApps(); 
+                    }
+                }, 50); // 50ms is enough for the browser to render the skeletons
             };
 
-            searchInput.addEventListener('input', debounce(triggerFilterSort, 300));
+            searchInput.addEventListener('input', debounce(triggerFilterSort, 400));
             categoryFilter.addEventListener('change', triggerFilterSort);
             sortOption.addEventListener('change', triggerFilterSort);
         }
 
         function loadUserApps() {
             const manageAppList = document.getElementById('manageAppList');
-            const loadingIndicator = document.getElementById('loadingIndicator');
             const noUserApps = document.getElementById('noUserApps');
 
-            if (!manageAppList || !loadingIndicator || !noUserApps) {
-                console.error('Manage app list, loading, or no user apps element not found');
-                return;
-            }
+            if (!manageAppList || !noUserApps) return;
 
             manageAppList.innerHTML = '';
             noUserApps.classList.add('hidden');
@@ -1273,7 +1289,6 @@
 
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user || !user.uid) {
-                console.error('User not found or not logged in');
                 showLoading(false);
                 noUserApps.classList.remove('hidden');
                 noUserApps.textContent = 'Please log in to manage your apps.';
@@ -1288,7 +1303,6 @@
             const q = query(collection(db, "apps"), where("userId", "==", user.uid));
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 if (!document.getElementById('manageAppList')) {
-                    console.warn('Manage app list no longer exists, stopping listener update.');
                     unsubscribe();
                     window.currentUserAppsListener = null;
                     return;
